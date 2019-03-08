@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace CryptoLabs\BIP32\KeyPair;
 
-use CryptoLabs\BIP32\KeyPair;
-
 /**
  * Class Curves
  * @package CryptoLabs\BIP32\KeyPair
@@ -31,19 +29,15 @@ class Curves
     public const SECP256K1 = 8;
     public const SECP256K1_OPENSSL = 16;
 
-    /** @var KeyPair */
-    private $keyPair;
     /** @var callable */
     private $callback;
 
     /**
      * Curves constructor.
-     * @param KeyPair $keyPair
      * @param callable $callback
      */
-    public function __construct(KeyPair $keyPair, callable $callback)
+    public function __construct(callable $callback)
     {
-        $this->keyPair = $keyPair;
         $this->callback = $callback;
     }
 
