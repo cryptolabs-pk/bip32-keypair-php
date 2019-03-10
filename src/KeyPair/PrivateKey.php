@@ -12,43 +12,38 @@
 
 declare(strict_types=1);
 
-namespace CryptoLabs\BIP32;
+namespace CryptoLabs\BIP32\KeyPair;
 
-use CryptoLabs\BIP32\KeyPair\Curves;
-use CryptoLabs\BIP32\KeyPair\PublicKey;
 use CryptoLabs\DataTypes\Binary;
 
 /**
- * Class KeyPair
+ * Class PrivateKey
  * @package CryptoLabs\BIP32
+ * @property-read null|int $curve
  */
-class KeyPair
+class PrivateKey
 {
-    /** @var null|KeyPair */
-    private $parent;
     /** @var Binary */
-    private $privateKey;
+    protected $privateKey;
     /** @var null|int */
-    private $curve;
+    protected $curve;
     /** @var null|PublicKey */
-    private $publicKey;
+    protected $publicKey;
 
     /**
-     * KeyPair constructor.
-     * @param Binary $privateKey
-     * @param KeyPair|null $parent
+     * PrivateKey constructor.
+     * @param Binary $entropy
      */
-    public function __construct(Binary $privateKey, ?KeyPair $parent = null)
+    public function __construct(Binary $entropy)
     {
-        $this->parent = $parent;
-        $this->privateKey = $privateKey;
+        $this->privateKey = $entropy;
         $this->privateKey->readOnly(true); // Set buffer to read-only state
     }
 
     /**
      * @param string $prop
      * @param $value
-     * @return KeyPair
+     * @return PrivateKey
      */
     public function set(string $prop, $value): self
     {
@@ -65,42 +60,40 @@ class KeyPair
     }
 
     /**
+     * @param string $prop
+     * @return int|null
+     */
+    public function __get(string $prop)
+    {
+        switch ($prop) {
+            case "curve":
+                return $this->curve;
+        }
+
+        throw new \DomainException('Cannot get value of inaccessible property');
+    }
+
+    /**
      * @return Curves
      */
     public function curves(): Curves
     {
-        return new Curves($this, function (int $curve) {
+        return new Curves(function (int $curve) {
             $this->set("curve", $curve);
         });
     }
 
     /**
-     * @return int|null
-     */
-    public function getEllipticCurve(): ?int
-    {
-        if ($this->curve) {
-            return $this->curve;
-        }
-
-        if ($this->parent) {
-            return $this->parent->getEllipticCurve();
-        }
-
-        return null;
-    }
-
-    /**
      * @return Binary
      */
-    public function privateKey(): Binary
+    public function raw(): Binary
     {
         return $this->privateKey;
     }
 
     /**
      * @return PublicKey
-     * @throws Exception\KeyPairException
+     * @throws \CryptoLabs\BIP32\Exception\PublicKeyException
      * @throws \CryptoLabs\ECDSA\Exception\GenerateVectorException
      * @throws \CryptoLabs\ECDSA\Exception\MathException
      */
