@@ -12,15 +12,18 @@
 
 declare(strict_types=1);
 
-namespace CryptoLabs\BIP32\KeyPair;
+namespace CryptoLabs\BIP32\KeyPair\PublicKey;
 
 use CryptoLabs\BIP32\Exception\FailSafeValidateException;
+use CryptoLabs\BIP32\KeyPair\Curves;
+use CryptoLabs\BIP32\KeyPair\PublicKey;
+use CryptoLabs\BIP32\KeyPair\Vectors;
 
 /**
- * Class FailSafeValidate
- * @package CryptoLabs\BIP32\KeyPair
+ * Class FailSafeCurveValidate
+ * @package CryptoLabs\BIP32\KeyPair\PublicKey
  */
-class FailSafeValidate extends Curves
+class FailSafeCurveValidate extends Curves
 {
     /**
      * FailSafeValidate constructor.
@@ -28,14 +31,12 @@ class FailSafeValidate extends Curves
      */
     public function __construct(PublicKey $publicKey)
     {
-        $keyPair = $publicKey->keyPair();
-
-        parent::__construct($keyPair, function (int $curve) use ($publicKey) {
+        parent::__construct(function (int $curve) use ($publicKey) {
             if ($publicKey->curve() === $curve) {
                 throw new FailSafeValidateException('Fail-safe ECDSA curve cannot be same as primary one');
             }
 
-            $failSafeVector = Vectors::Curve($curve, $publicKey->keyPair()->privateKey());
+            $failSafeVector = Vectors::Curve($curve, $publicKey->privateKey()->raw());
             switch ($curve) {
                 case Curves::SECP256K1:
                 case Curves::SECP256K1_OPENSSL:
