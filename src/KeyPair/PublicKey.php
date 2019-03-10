@@ -50,7 +50,7 @@ class PublicKey
     public function __construct(PrivateKey $keyPair)
     {
         $this->privateKey = $keyPair;
-        $this->curve = $this->privateKey->curve;
+        $this->curve = $this->privateKey->getEllipticCurve();
         if (!$this->curve) {
             throw new PublicKeyException('Cannot generate public key; ECDSA curve is not defined');
         }
