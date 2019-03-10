@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace CryptoLabs\BIP32\Exception;
 
 /**
- * Class FailSafeValidateException
+ * Class AddressGenerateException
  * @package CryptoLabs\BIP32\Exception
  */
-class FailSafeValidateException extends PublicKeyException
+class AddressGenerateException extends PublicKeyException
 {
 }
