@@ -41,6 +41,14 @@ class PrivateKey
     }
 
     /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return [sprintf('%d-bit Private Key', $this->privateKey->length()->bits())];
+    }
+
+    /**
      * @param string $prop
      * @param $value
      * @return PrivateKey
