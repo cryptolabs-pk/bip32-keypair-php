@@ -16,6 +16,7 @@
     "php-64bit": "^7.2",
     "ext-openssl": "*",
     "ext-bcmath": "*",
+    "cryptolabs-pk/base58check-php": "^0.1.0",
     "cryptolabs-pk/ecdsa-php": "^0.1.0"
   },
   "autoload": {
