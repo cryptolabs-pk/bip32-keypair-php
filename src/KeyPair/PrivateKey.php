@@ -14,28 +14,32 @@ declare(strict_types=1);
 
 namespace CryptoLabs\BIP32\KeyPair;
 
+use CryptoLabs\BIP32\ExtendedKey;
 use CryptoLabs\DataTypes\Binary;
 
 /**
  * Class PrivateKey
  * @package CryptoLabs\BIP32
- * @property-read null|int $curve
  */
 class PrivateKey
 {
+    /** @var null|ExtendedKey */
+    private $extendedKey;
     /** @var Binary */
-    protected $privateKey;
+    private $privateKey;
     /** @var null|int */
-    protected $curve;
+    private $curve;
     /** @var null|PublicKey */
-    protected $publicKey;
+    private $publicKey;
 
     /**
      * PrivateKey constructor.
      * @param Binary $entropy
+     * @param ExtendedKey|null $extendedKey
      */
-    public function __construct(Binary $entropy)
+    public function __construct(Binary $entropy, ?ExtendedKey $extendedKey = null)
     {
+        $this->extendedKey = $extendedKey;
         $this->privateKey = $entropy;
         $this->privateKey->readOnly(true); // Set buffer to read-only state
     }
@@ -56,11 +60,15 @@ class PrivateKey
     public function set(string $prop, $value): self
     {
         if ($prop === "curve") {
+            if ($this->extendedKey) {
+                throw new \DomainException('Cannot change ECDSA curve for Extended private keys');
+            }
+
             if (!is_int($value) || !in_array($value, array_keys(Curves::INDEX))) {
                 throw new \InvalidArgumentException('Cannot use an invalid ECDSA curve');
             }
 
-            $this->$prop = $value;
+            $this->curve = $value;
             return $this;
         }
 
@@ -68,17 +76,19 @@ class PrivateKey
     }
 
     /**
-     * @param string $prop
      * @return int|null
      */
-    public function __get(string $prop)
+    public function getEllipticCurve(): ?int
     {
-        switch ($prop) {
-            case "curve":
-                return $this->curve;
+        if ($this->curve) {
+            return $this->curve;
         }
 
-        throw new \DomainException('Cannot get value of inaccessible property');
+        if ($this->extendedKey) {
+            return $this->extendedKey->getEllipticCurve();
+        }
+
+        return null;
     }
 
     /**
